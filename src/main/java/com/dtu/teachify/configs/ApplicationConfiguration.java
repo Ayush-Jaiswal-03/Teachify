@@ -1,5 +1,6 @@
 package com.dtu.teachify.configs;
 
+import com.dtu.teachify.entity.User;
 import com.dtu.teachify.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +24,13 @@ public class ApplicationConfiguration {
     // implements loadUserByUsername function of the UserDetailsService interface
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return username -> {
+            User user = userRepository.findByEmail(username);
+            if(user == null){
+                throw new UsernameNotFoundException("User not found ...");
+            }
+            return user;
+        };
     }
 
     @Bean

@@ -3,7 +3,7 @@ package com.dtu.teachify.dto;
 import lombok.Data;
 
 @Data
-public class LoginUserDTO {
+public class LoginUserDto {
     private String email;
     private String password;
 }

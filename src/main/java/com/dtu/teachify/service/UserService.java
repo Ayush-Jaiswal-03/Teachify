@@ -1,6 +1,6 @@
 package com.dtu.teachify.service;
 
-import com.dtu.teachify.dto.UserDTO;
+import com.dtu.teachify.dto.UserDto;
 import com.dtu.teachify.entity.User;
 import com.dtu.teachify.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,58 +9,56 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.Optional;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final UserRepository userRepository; // required args constructor use kar rakha hai, no need for autowired
     private final PasswordEncoder passwordEncoder;
 
-    public UserDTO createUser(UserDTO userDTO){
+    public UserDto createUser(UserDto userDTO){
 
         // creating a new User from the DTO that came to us as input
         User newUser = User.builder()
                 .email(userDTO.getEmail())
                 .password(passwordEncoder.encode(userDTO.getPassword()))
-                .userName(userDTO.getUserName())
-                .createdAt(Instant.now())
+                .username(userDTO.getUsername())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         newUser = userRepository.save(newUser);
 
         // converting the newUser object to type-[UserDTO] to be returned
-        return UserDTO.builder()
-                .id(newUser.getId())
+        return UserDto.builder()
                 .email(newUser.getEmail())
-                .userName(newUser.getUsername())
+                .username(newUser.getUsername())
                 .createdAt(newUser.getCreatedAt())
                 .build();
 
     }
 
-    public UserDTO updateProfile(UserDTO userDTO) {
-        Optional<User> existingUser = userRepository.findByEmail(userDTO.getEmail());
+    public UserDto updateProfile(UserDto userDTO) {
+        User existingUser = userRepository.findByEmail(userDTO.getEmail());
 
-        if(existingUser.isPresent()){
+        if(existingUser != null){
 
             if(userDTO.getEmail() != null && !userDTO.getEmail().isEmpty()){
-                existingUser.get().setEmail(userDTO.getEmail());
+                existingUser.setEmail(userDTO.getEmail());
             }
 
-            if(userDTO.getUserName() != null && !userDTO.getUserName().isEmpty()){
-                existingUser.get().setUserName(userDTO.getUserName());
+            if(userDTO.getUsername() != null && !userDTO.getUsername().isEmpty()){
+                existingUser.setUsername(userDTO.getUsername());
             }
 
-            userRepository.save(existingUser.get());
+            userRepository.save(existingUser);
 
-            return  UserDTO.builder()
-                    .id(existingUser.get().getId())
-                    .email(existingUser.get().getEmail())
-                    .userName(existingUser.get().getUsername())
-                    .createdAt(existingUser.get().getCreatedAt())
+            return  UserDto.builder()
+                    .id(existingUser.getId())
+                    .email(existingUser.getEmail())
+                    .username(existingUser.getUsername())
+                    .createdAt(existingUser.getCreatedAt())
                     .build();
         }
         return null;
@@ -68,21 +66,29 @@ public class UserService {
 
     public void deleteProfile(String email){
 
-        Optional<User> existingUser = userRepository.findByEmail(email);
+        User existingUser = userRepository.findByEmail(email);
 
-        existingUser.ifPresent(userRepository::delete);
+        if(existingUser != null){
+            userRepository.delete(existingUser);
+        }
+//        existingUser.ifPresent(userRepository::delete);
 //        alternate code
 //        if(existingUser.isPresent()){
 //            userRepository.delete(existingUser.get());
 //        }
     }
 
-    public Optional<User> getCurrentProfile(){
+    public User getCurrentUser(){
         if(SecurityContextHolder.getContext().getAuthentication() == null){
             throw new UsernameNotFoundException("User not authenticated..");
         }
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(email);
+
+        User user = userRepository.findByEmail(email);
+
+        if(user == null) throw new UsernameNotFoundException("User not found ...");
+
+        return user;
     }
 
 

@@ -1,7 +1,7 @@
 package com.dtu.teachify.controller;
 
-import com.dtu.teachify.dto.LoginUserDTO;
-import com.dtu.teachify.dto.UserDTO;
+import com.dtu.teachify.dto.LoginUserDto;
+import com.dtu.teachify.dto.UserDto;
 import com.dtu.teachify.entity.User;
 import com.dtu.teachify.response.LoginResponse;
 import com.dtu.teachify.service.AuthenticationService;
@@ -25,14 +25,14 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<UserDTO> register(@RequestBody UserDTO input) {
-        UserDTO registeredUser = authenticationService.signup(input);
+    public ResponseEntity<UserDto> register(@RequestBody UserDto input) {
+        UserDto registeredUser = authenticationService.signup(input);
 
         return ResponseEntity.ok(registeredUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDTO loginUserDto) {
+    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
         String jwtToken = jwtService.generateToken(authenticatedUser);

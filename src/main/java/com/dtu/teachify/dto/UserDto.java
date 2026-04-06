@@ -1,18 +1,19 @@
 package com.dtu.teachify.dto;
 
 import lombok.*;
-import java.time.Instant;
+
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class UserDTO {
+public class UserDto {
 
     private Long id;
-    private String userName;
+    private String username;
     private String email;
     private String password;
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
 }

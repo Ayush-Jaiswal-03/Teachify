@@ -1,7 +1,7 @@
 package com.dtu.teachify.service;
 
-import com.dtu.teachify.dto.LoginUserDTO;
-import com.dtu.teachify.dto.UserDTO;
+import com.dtu.teachify.dto.LoginUserDto;
+import com.dtu.teachify.dto.UserDto;
 import com.dtu.teachify.entity.User;
 import com.dtu.teachify.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,11 +27,11 @@ public class AuthenticationService {
         this.userService = userService;
     }
 
-    public UserDTO signup(UserDTO input) {
+    public UserDto signup(UserDto input) {
         return userService.createUser(input);
     }
 
-    public User authenticate(LoginUserDTO input) {
+    public User authenticate(LoginUserDto input) {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -40,7 +40,6 @@ public class AuthenticationService {
                 )
         );
 
-        return userRepository.findByEmail(input.getEmail())
-                .orElseThrow();
+        return userRepository.findByEmail(input.getEmail());
     }
 }
