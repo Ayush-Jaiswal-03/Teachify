@@ -2,8 +2,10 @@ package com.dtu.teachify.service;
 
 import com.dtu.teachify.dto.UserDto;
 import com.dtu.teachify.entity.User;
+import com.dtu.teachify.exception.ApiException;
 import com.dtu.teachify.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +20,11 @@ public class UserService {
     private final UserRepository userRepository; // required args constructor use kar rakha hai, no need for autowired
     private final PasswordEncoder passwordEncoder;
 
-    public UserDto createUser(UserDto userDTO){
+    public User createUser(UserDto userDTO){
+
+        if(userRepository.existsByEmail(userDTO.getEmail())){
+            throw new ApiException(HttpStatus.CONFLICT, "User Already Exists ...");
+        }
 
         // creating a new User from the DTO that came to us as input
         User newUser = User.builder()
@@ -31,7 +37,7 @@ public class UserService {
         newUser = userRepository.save(newUser);
 
         // converting the newUser object to type-[UserDTO] to be returned
-        return UserDto.builder()
+        return User.builder()
                 .email(newUser.getEmail())
                 .username(newUser.getUsername())
                 .createdAt(newUser.getCreatedAt())
@@ -79,10 +85,8 @@ public class UserService {
     }
 
     public User getCurrentUser(){
-        if(SecurityContextHolder.getContext().getAuthentication() == null){
-            throw new UsernameNotFoundException("User not authenticated..");
-        }
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        String email = getEmailFromToken();
 
         User user = userRepository.findByEmail(email);
 
@@ -90,6 +94,16 @@ public class UserService {
 
         return user;
     }
+
+    public String getEmailFromToken(){
+        if(SecurityContextHolder.getContext().getAuthentication() == null){
+            throw new UsernameNotFoundException("User not authenticated..");
+        }
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        return email;
+    }
+
 
 
 

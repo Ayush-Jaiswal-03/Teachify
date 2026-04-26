@@ -27,7 +27,7 @@ public class AuthenticationService {
         this.userService = userService;
     }
 
-    public UserDto signup(UserDto input) {
+    public User signup(UserDto input) {
         return userService.createUser(input);
     }
 

@@ -3,9 +3,11 @@ package com.dtu.teachify.controller;
 import com.dtu.teachify.dto.LoginUserDto;
 import com.dtu.teachify.dto.UserDto;
 import com.dtu.teachify.entity.User;
-import com.dtu.teachify.response.LoginResponse;
+import com.dtu.teachify.response.ApiResponse;
+import com.dtu.teachify.response.AuthResponse;
 import com.dtu.teachify.service.AuthenticationService;
 import com.dtu.teachify.service.JwtService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,22 +27,35 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<UserDto> register(@RequestBody UserDto input) {
-        UserDto registeredUser = authenticationService.signup(input);
+    public ResponseEntity<ApiResponse<AuthResponse>> register(@RequestBody UserDto input) {
+        User registeredUser = authenticationService.signup(input);
 
-        return ResponseEntity.ok(registeredUser);
+        String jwtToken = jwtService.generateToken(registeredUser);
+
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setId(registeredUser.getId());
+        authResponse.setUsername(registeredUser.getUsername());
+        authResponse.setEmail(registeredUser.getEmail());
+        authResponse.setToken(jwtToken);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>(true, "User created successfully", authResponse));
     }
 
+
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
-        User authenticatedUser = authenticationService.authenticate(loginUserDto);
+    public ResponseEntity<ApiResponse<AuthResponse>> authenticate(@RequestBody LoginUserDto input) {
+        User authenticatedUser = authenticationService.authenticate(input);
 
         String jwtToken = jwtService.generateToken(authenticatedUser);
 
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setToken(jwtToken);
-        loginResponse.setExpiresIn(jwtService.getExpirationTime());
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setId(authenticatedUser.getId());
+        authResponse.setUsername(authenticatedUser.getUsername());
+        authResponse.setEmail(authenticatedUser.getEmail());
+        authResponse.setToken(jwtToken);
 
-        return ResponseEntity.ok(loginResponse);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse<>(true, "Logged In successfully", authResponse));
     }
 }

@@ -1,8 +1,13 @@
 package com.dtu.teachify.controller;
 
 import com.dtu.teachify.dto.ClassroomDto;
+import com.dtu.teachify.dto.MemberDto;
+import com.dtu.teachify.dto.UserDto;
+import com.dtu.teachify.entity.Assignment;
 import com.dtu.teachify.entity.Classroom;
 import com.dtu.teachify.entity.User;
+import com.dtu.teachify.exception.ApiException;
+import com.dtu.teachify.response.ApiResponse;
 import com.dtu.teachify.service.ClassroomService;
 import com.dtu.teachify.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,42 +26,44 @@ public class ClassroomController {
     private final ClassroomService classroomService;
 
     @PostMapping("/create")
-    public ResponseEntity<Classroom> createClassroom(@RequestBody ClassroomDto classroomInfo) {
+    public ResponseEntity<ApiResponse<ClassroomDto>> createClassroom(@RequestBody ClassroomDto classroomInfo) {
 
         if (classroomInfo == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
         User currentUser = userService.getCurrentUser();
-        Classroom classroom = classroomService.create(currentUser, classroomInfo);
+        ClassroomDto createdClassroom = classroomService.create(currentUser, classroomInfo);
 
-        return new ResponseEntity<>(classroom, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse<>(true, "Classroom created Successfully ...", createdClassroom));
     }
 
-    @PostMapping("/join")
-    public ResponseEntity<String> joinClassroom(@RequestBody String joinCode){
+    @GetMapping("/{joinCode}/join")
+    public ResponseEntity<ApiResponse<ClassroomDto>> joinClassroom(@PathVariable String joinCode){
 
         User currentUser = userService.getCurrentUser();
 
-        classroomService.joinClassroom(currentUser, joinCode);
+        ClassroomDto joinedClassroom = classroomService.joinClassroom(currentUser, joinCode);
 
-        return new ResponseEntity<>("Classroom joined Successfully ...", HttpStatus.OK);
-
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse<>(true, "Classroom joined Successfully ...", joinedClassroom));
     }
 
     @GetMapping("/get")
     public List<ClassroomDto> getAllClassrooms(){
-
         User currentUser = userService.getCurrentUser();
-
         return classroomService.getAllClassroomsForUser(currentUser);
-
     }
 
+    @GetMapping("/{classroomId}/assignments")
+    public List<Assignment> fetchAllAssignments(@PathVariable Long classroomId){
+        User currentUser = userService.getCurrentUser();
+        return classroomService.getAllAssignments(classroomId);
+    }
 
-
-//    @DeleteMapping("/delete")
-//    public void removeUserFromClassroom(){
-//
-//    }
+    @GetMapping("/{classroomId}/users")
+    public List<MemberDto> getAllUsersForClassroom(@PathVariable Long classroomId){
+        return classroomService.findAllMembers(classroomId);
+    }
 
 }

@@ -18,25 +18,11 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
-    // Internal Server Error
-    @ExceptionHandler(InternalServerException.class)
-    public ResponseEntity<String> handleClassroomError(InternalServerException ex) {
+    // Custom Exception Class (statusCode not hardcoded)
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<String> handleApiException(ApiException ex){
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ex.getMessage());
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleNotFound(ResourceNotFoundException ex) {
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<?> handleBadRequest(BadRequestException ex) {
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .status(ex.getStatus())
                 .body(ex.getMessage());
     }
 

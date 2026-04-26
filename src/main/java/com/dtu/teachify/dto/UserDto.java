@@ -16,4 +16,9 @@ public class UserDto {
     private String password;
     private LocalDateTime createdAt;
 
+    public UserDto(Long id, String username, String email) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+    }
 }

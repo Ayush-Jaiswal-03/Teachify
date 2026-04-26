@@ -9,28 +9,34 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "classrooms")
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Classroom {
+@Builder
+@Table(name = "assignments")
+public class Assignment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Classroom classroom;
+
     @Column(nullable = false)
-    private String name;
+    private String title;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @Column(columnDefinition = "LONGTEXT")
+    private String instructions;
 
-    @Column(unique = true)
-    private String joinCode;
+    private LocalDateTime dueDate;
 
-    @Column(name = "created_by")
+    private Double points;
+
     private Long createdBy;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
 }
+
