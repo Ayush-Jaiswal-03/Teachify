@@ -21,8 +21,6 @@ public class Attachment {
     @ManyToOne(fetch = FetchType.LAZY)
     private Assignment assignment;
 
-    @Column(columnDefinition = "TEXT")
-    private String fileUrl; // S3 URL
     private String fileKey;
     private String fileName;
 }

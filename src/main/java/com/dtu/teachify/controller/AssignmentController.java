@@ -7,10 +7,8 @@ import com.dtu.teachify.entity.Classroom;
 import com.dtu.teachify.entity.User;
 import com.dtu.teachify.exception.ApiException;
 import com.dtu.teachify.repository.ClassroomRepository;
-import com.dtu.teachify.response.ApiResponse;
 import com.dtu.teachify.service.AssignmentService;
 import com.dtu.teachify.service.UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/assignments")
@@ -34,7 +30,7 @@ public class AssignmentController {
     consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Assignment createAssignment(@PathVariable Long classroomId, @RequestPart("data") AssignmentRequest assignmentInfo, @RequestPart(value = "attachments", required = false) MultipartFile[] attachments) throws IOException {
 
-        User currentUser = userService.getCurrentUser();
+        User currentUser = userService.authenticateAndGetUser();
 
 //        ObjectMapper mapper = new ObjectMapper();
 //        AssignmentDto assignmentInfo = mapper.readValue(data, AssignmentDto.class);
@@ -50,7 +46,8 @@ public class AssignmentController {
 
     @GetMapping("/{assignmentId}")
     public AssignmentDto fetchAssignmentDetail(@PathVariable Long assignmentId){
-        return assignmentService.fetchAssignmentDetails(assignmentId);
+        User user = userService.authenticateAndGetUser();
+        return assignmentService.fetchAssignmentDetails(user.getId(), assignmentId);
     }
 
 

@@ -3,6 +3,7 @@ package com.dtu.teachify.service;
 import com.dtu.teachify.dto.AssignmentDto;
 import com.dtu.teachify.dto.AssignmentRequest;
 import com.dtu.teachify.dto.AttachmentDto;
+import com.dtu.teachify.dto.SubmissionDto;
 import com.dtu.teachify.entity.Assignment;
 import com.dtu.teachify.entity.Classroom;
 import com.dtu.teachify.entity.Member;
@@ -17,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +26,7 @@ public class AssignmentService {
     private final MemberRepository memberRepository;
     private final AssignmentRepository assignmentRepository;
     private final AttachmentService attachmentService;
+    private final SubmissionService submissionService;
     private final SNSService snsService;
 
     public Assignment createAssignment(Classroom classroom, User user, AssignmentRequest assignmentInfo, MultipartFile[] attachments) throws IOException {
@@ -47,7 +48,7 @@ public class AssignmentService {
 
         Assignment createdAssignment = assignmentRepository.save(assignment);
 
-        attachmentService.uploadFiles(assignment, attachments);
+        attachmentService.uploadAssignmentAttachments(assignment, attachments);
 
         snsService.publishAssignmentPosted(classroom, user, assignment);
 
@@ -55,19 +56,22 @@ public class AssignmentService {
 
     }
 
-    public AssignmentDto fetchAssignmentDetails(Long assignmentId){
+    public AssignmentDto fetchAssignmentDetails(Long userId, Long assignmentId){
 
         Assignment assignment = assignmentRepository.findById(assignmentId).get();
 
         List<AttachmentDto> attachments = attachmentService.fetchAllAttachments(assignmentId);
+
+        SubmissionDto userSubmission = submissionService.getUserSubmission(userId, assignmentId);
 
         return AssignmentDto.builder()
                 .id(assignmentId)
                 .title(assignment.getTitle())
                 .instructions(assignment.getInstructions())
                 .points(assignment.getPoints())
-                .dueDate()
+                .dueDate(assignment.getDueDate())
                 .attachments(attachments)
+                .userSubmission(userSubmission)
                 .build();
 
     }

@@ -19,4 +19,5 @@ public class AssignmentDto {
     private Double points;
     private LocalDateTime dueDate;
     private List<AttachmentDto> attachments;
+    private SubmissionDto userSubmission;
 }

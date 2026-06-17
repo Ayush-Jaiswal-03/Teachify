@@ -84,12 +84,11 @@ public class UserService {
 //        }
     }
 
-    public User getCurrentUser(){
+    public User authenticateAndGetUser(){
 
         String email = getEmailFromToken();
 
         User user = userRepository.findByEmail(email);
-
         if(user == null) throw new UsernameNotFoundException("User not found ...");
 
         return user;
@@ -99,6 +98,7 @@ public class UserService {
         if(SecurityContextHolder.getContext().getAuthentication() == null){
             throw new UsernameNotFoundException("User not authenticated..");
         }
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         return email;

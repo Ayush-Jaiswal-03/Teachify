@@ -2,11 +2,8 @@ package com.dtu.teachify.controller;
 
 import com.dtu.teachify.dto.ClassroomDto;
 import com.dtu.teachify.dto.MemberDto;
-import com.dtu.teachify.dto.UserDto;
 import com.dtu.teachify.entity.Assignment;
-import com.dtu.teachify.entity.Classroom;
 import com.dtu.teachify.entity.User;
-import com.dtu.teachify.exception.ApiException;
 import com.dtu.teachify.response.ApiResponse;
 import com.dtu.teachify.service.ClassroomService;
 import com.dtu.teachify.service.UserService;
@@ -31,7 +28,8 @@ public class ClassroomController {
         if (classroomInfo == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
-        User currentUser = userService.getCurrentUser();
+
+        User currentUser = userService.authenticateAndGetUser();
         ClassroomDto createdClassroom = classroomService.create(currentUser, classroomInfo);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -41,7 +39,7 @@ public class ClassroomController {
     @GetMapping("/{joinCode}/join")
     public ResponseEntity<ApiResponse<ClassroomDto>> joinClassroom(@PathVariable String joinCode){
 
-        User currentUser = userService.getCurrentUser();
+        User currentUser = userService.authenticateAndGetUser();
 
         ClassroomDto joinedClassroom = classroomService.joinClassroom(currentUser, joinCode);
 
@@ -51,13 +49,13 @@ public class ClassroomController {
 
     @GetMapping("/get")
     public List<ClassroomDto> getAllClassrooms(){
-        User currentUser = userService.getCurrentUser();
+        User currentUser = userService.authenticateAndGetUser();
         return classroomService.getAllClassroomsForUser(currentUser);
     }
 
     @GetMapping("/{classroomId}/assignments")
     public List<Assignment> fetchAllAssignments(@PathVariable Long classroomId){
-        User currentUser = userService.getCurrentUser();
+        User currentUser = userService.authenticateAndGetUser();
         return classroomService.getAllAssignments(classroomId);
     }
 
