@@ -1,9 +1,6 @@
 package com.dtu.teachify.service;
 
-import com.dtu.teachify.dto.AssignmentDto;
-import com.dtu.teachify.dto.AssignmentRequest;
-import com.dtu.teachify.dto.AttachmentDto;
-import com.dtu.teachify.dto.SubmissionDto;
+import com.dtu.teachify.dto.*;
 import com.dtu.teachify.entity.Assignment;
 import com.dtu.teachify.entity.Classroom;
 import com.dtu.teachify.entity.Member;
@@ -74,6 +71,20 @@ public class AssignmentService {
                 .userSubmission(userSubmission)
                 .build();
 
+    }
+
+    public AssignmentSummaryResponse fetchAssignmentSummary(Long classroomId){
+        List<AssignmentSummaryDto> assignmentSummaryDtos = fetchAssignmentsWithSubmissionCount(classroomId);
+        int studentCount = memberRepository.countStudentsByClassroomId(classroomId);
+
+        return AssignmentSummaryResponse.builder()
+                .assignmentSummaryList(assignmentSummaryDtos)
+                .studentCount(studentCount)
+                .build();
+    }
+
+    public List<AssignmentSummaryDto> fetchAssignmentsWithSubmissionCount(Long classroomId){
+        return assignmentRepository.fetchAssignmentsWithSubmissionCount(classroomId);
     }
 
 

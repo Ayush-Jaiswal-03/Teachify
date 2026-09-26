@@ -107,7 +107,7 @@ public class AttachmentService {
         return submissionAttachments.stream()
                 .map(att -> {
                     String fileUrl = s3Service.generatePreSignedUrl(att.getFileKey());
-                    return new SubmissionAttachmentDto(att.getId(), att.getFileName(), fileUrl);
+                    return new SubmissionAttachmentDto(att.getId(), att.getSubmission().getId(), att.getFileName(), fileUrl);
                 }).toList();
 
     }
